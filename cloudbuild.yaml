@@ -11,9 +11,11 @@ steps:
       - run
       - deploy
       - crispy-system
+      - --allow-unauthenticated
       - --image
       - gcr.io/$PROJECT_ID/crispy-system:$COMMIT_SHA
-      - --allow-unauthenticated
+      - --region
+      - asia-northeast1
 
 images:
   - gcr.io/$PROJECT_ID/crispy-system:$COMMIT_SHA
