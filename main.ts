@@ -2,6 +2,7 @@ import { Construct } from "constructs";
 import { App, TerraformStack, CloudBackend, NamedCloudWorkspace } from "cdktf";
 import * as google from '@cdktf/provider-google';
 
+//const default_location = 'asia-northeast1';
 const project_id = 'crispy-system-366103';
 
 class MyStack extends TerraformStack {
@@ -12,6 +13,16 @@ class MyStack extends TerraformStack {
       project: project_id,
     })
 
+    const cloud_builder_account = new google.ServiceAccount(this, 'cloud_builder_account', {
+      accountId: 'cloud-builder-account',
+    });
+
+    new google.ProjectIamMember(this, 'cloud_builder_member', {
+      project: project_id,
+      member: `serviceAccount:${cloud_builder_account.email}`,
+      role: 'roles/run.admin',
+    });
+
     new google.CloudbuildTrigger(this, 'cloud_build_trigger', {
       filename: 'cloudbuild.yaml',
       github: {
@@ -21,6 +32,7 @@ class MyStack extends TerraformStack {
           branch: 'main',
         },
       },
+      serviceAccount: cloud_builder_account.id,
     });
   }
 }
