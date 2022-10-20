@@ -11,6 +11,17 @@ class MyStack extends TerraformStack {
     new google.GoogleProvider(this, 'Google', {
       project: project_id,
     })
+
+    new google.CloudbuildTrigger(this, 'cloud_build_trigger', {
+      filename: 'cloudbuild.yaml',
+      github: {
+        name: 'crispy-system',
+        owner: 'hsmtkk',
+        push: {
+          branch: 'main',
+        },
+      },
+    });
   }
 }
 
