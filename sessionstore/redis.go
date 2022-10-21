@@ -11,11 +11,11 @@ type RedisImpl struct {
 	client *redis.Client
 }
 
-func NewRedisImpl(redisHost string, redisPort int, redisPassword string) SessionStore {
+func NewRedisImpl(redisHost string, redisPort int) SessionStore {
 	addr := fmt.Sprintf("%s:%d", redisHost, redisPort)
 	client := redis.NewClient(&redis.Options{
 		Addr:     addr,
-		Password: redisPassword,
+		Password: "",
 		DB:       0,
 	})
 	return &RedisImpl{client}

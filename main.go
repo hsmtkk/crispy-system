@@ -158,14 +158,10 @@ func initSessionStore() (sessionstore.SessionStore, error) {
 		if err != nil {
 			return nil, err
 		}
-		redisPassword, err := requiredEnv("REDIS_PASSWORD")
-		if err != nil {
-			return nil, err
-		}
 		redisPort, err := strconv.Atoi(redisPortStr)
 		if err != nil {
 			return nil, fmt.Errorf("failed to parse %s as int; %w", redisPortStr, err)
 		}
-		return sessionstore.NewRedisImpl(redisHost, redisPort, redisPassword), nil
+		return sessionstore.NewRedisImpl(redisHost, redisPort), nil
 	}
 }
