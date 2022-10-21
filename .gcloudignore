@@ -1,8 +1,5 @@
-# ignore all
-*
-
-# white list
-!Dockerfile
-!go.mod
-!go.sum
-!main.go
+.git
+*.exe
+__tests__
+cdktf.out
+node_modules
