@@ -1,7 +1,9 @@
 package sessionstore
 
+import "context"
+
 type SessionStore interface {
-	NewSession(userID string) (string, error)
-	GetUserID(sessionID string) (string, error)
-	DeleteSession(sessionID string) error
+	NewSession(ctx context.Context, sessionID, userID string) (string, error)
+	GetUserID(ctx context.Context, sessionID string) (string, error)
+	DeleteSession(ctx context.Context, sessionID string) error
 }

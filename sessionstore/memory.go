@@ -1,10 +1,9 @@
 package sessionstore
 
 import (
+	"context"
 	"fmt"
 	"log"
-
-	"github.com/google/uuid"
 )
 
 type MemoryImpl struct {
@@ -15,14 +14,13 @@ func NewMemoryImpl() SessionStore {
 	return &MemoryImpl{sessionUserMap: map[string]string{}}
 }
 
-func (m *MemoryImpl) NewSession(userID string) (string, error) {
-	sessionID := uuid.NewString()
+func (m *MemoryImpl) NewSession(ctx context.Context, sessionID, userID string) (string, error) {
 	m.sessionUserMap[sessionID] = userID
 	log.Printf("NewSession: %s %v", userID, m.sessionUserMap)
 	return sessionID, nil
 }
 
-func (m *MemoryImpl) GetUserID(sessionID string) (string, error) {
+func (m *MemoryImpl) GetUserID(ctx context.Context, sessionID string) (string, error) {
 	userID, ok := m.sessionUserMap[sessionID]
 	if ok {
 		log.Printf("GetUserID: %s %s", sessionID, userID)
@@ -32,7 +30,7 @@ func (m *MemoryImpl) GetUserID(sessionID string) (string, error) {
 	}
 }
 
-func (m *MemoryImpl) DeleteSession(sessionID string) error {
+func (m *MemoryImpl) DeleteSession(ctx context.Context, sessionID string) error {
 	delete(m.sessionUserMap, sessionID)
 	log.Printf("DeleteSession: %s %v", sessionID, m.sessionUserMap)
 	return nil

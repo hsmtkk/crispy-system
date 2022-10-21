@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/hsmtkk/crispy-system/sessionstore"
 	"github.com/hsmtkk/crispy-system/userstore"
 	"github.com/labstack/echo/v4"
@@ -75,7 +76,8 @@ func (h *myHandler) postLogin(ectx echo.Context) error {
 	if userID == "" {
 		return fmt.Errorf("empty userID")
 	}
-	sessionID, err := h.sessionStore.NewSession(userID)
+	sessionID := uuid.NewString()
+	sessionID, err := h.sessionStore.NewSession(ectx.Request().Context(), sessionID, userID)
 	if err != nil {
 		return err
 	}
@@ -94,7 +96,7 @@ func (h *myHandler) increment(ectx echo.Context) error {
 		return ectx.Redirect(http.StatusMovedPermanently, "/login")
 	}
 	sessionID := cookie.Value
-	userID, err := h.sessionStore.GetUserID(sessionID)
+	userID, err := h.sessionStore.GetUserID(ectx.Request().Context(), sessionID)
 	if err != nil {
 		log.Printf("session does not exist; %s", err.Error())
 		return ectx.Redirect(http.StatusMovedPermanently, "/login")
@@ -113,7 +115,7 @@ func (h *myHandler) logout(ectx echo.Context) error {
 		return ectx.Redirect(http.StatusMovedPermanently, "/login")
 	}
 	sessionID := cookie.Value
-	if err := h.sessionStore.DeleteSession(sessionID); err != nil {
+	if err := h.sessionStore.DeleteSession(ectx.Request().Context(), sessionID); err != nil {
 		return err
 	}
 	cookie.Name = cookieName
@@ -156,10 +158,14 @@ func initSessionStore() (sessionstore.SessionStore, error) {
 		if err != nil {
 			return nil, err
 		}
+		redisPassword, err := requiredEnv("REDIS_PASSWORD")
+		if err != nil {
+			return nil, err
+		}
 		redisPort, err := strconv.Atoi(redisPortStr)
 		if err != nil {
 			return nil, fmt.Errorf("failed to parse %s as int; %w", redisPortStr, err)
 		}
-		return sessionstore.NewRedisImpl(redisHost, redisPort)
+		return sessionstore.NewRedisImpl(redisHost, redisPort, redisPassword), nil
 	}
 }
