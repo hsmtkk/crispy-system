@@ -27,7 +27,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	userStore := userstore.NewMemoryImpl()
+	userStore, err := initUserStore()
+	if err != nil {
+		log.Fatal(err)
+	}
 	hdl := newHandler(sessionStore, userStore)
 
 	// Echo instance
@@ -101,7 +104,7 @@ func (h *myHandler) increment(ectx echo.Context) error {
 		log.Printf("session does not exist; %s", err.Error())
 		return ectx.Redirect(http.StatusMovedPermanently, "/login")
 	}
-	count, err := h.userStore.Increment(userID)
+	count, err := h.userStore.Increment(ectx.Request().Context(), userID)
 	if err != nil {
 		return err
 	}
@@ -146,7 +149,7 @@ func getPort() (int, error) {
 }
 
 func initSessionStore() (sessionstore.SessionStore, error) {
-	useRedis := os.Getenv("REDIS_HOST")
+	useRedis := os.Getenv("USE_REDIS")
 	if useRedis == "" {
 		return sessionstore.NewMemoryImpl(), nil
 	} else {
@@ -163,5 +166,22 @@ func initSessionStore() (sessionstore.SessionStore, error) {
 			return nil, fmt.Errorf("failed to parse %s as int; %w", redisPortStr, err)
 		}
 		return sessionstore.NewRedisImpl(redisHost, redisPort), nil
+	}
+}
+
+func initUserStore() (userstore.UserStore, error) {
+	useFirestore := os.Getenv("USE_FIRESTORE")
+	if useFirestore == "" {
+		return userstore.NewMemoryImpl(), nil
+	} else {
+		projectID, err := requiredEnv("PROJECT_ID")
+		if err != nil {
+			return nil, err
+		}
+		collection, err := requiredEnv("COLLECTION")
+		if err != nil {
+			return nil, err
+		}
+		return userstore.NewFirestoreImpl(projectID, collection), nil
 	}
 }

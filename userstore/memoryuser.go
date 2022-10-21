@@ -1,5 +1,7 @@
 package userstore
 
+import "context"
+
 type MemoryImpl struct {
 	userVisitedMap map[string]int
 }
@@ -9,7 +11,7 @@ func NewMemoryImpl() UserStore {
 	return &MemoryImpl{userVisitedMap}
 }
 
-func (m *MemoryImpl) Increment(userID string) (int, error) {
+func (m *MemoryImpl) Increment(ctx context.Context, userID string) (int, error) {
 	count, ok := m.userVisitedMap[userID]
 	newCount := 1
 	if ok {

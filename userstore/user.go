@@ -1,5 +1,7 @@
 package userstore
 
+import "context"
+
 type UserStore interface {
-	Increment(userID string) (int, error)
+	Increment(ctx context.Context, userID string) (int, error)
 }

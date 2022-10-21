@@ -40,5 +40,5 @@ func (r *RedisImpl) DeleteSession(ctx context.Context, sessionID string) error {
 	if err := r.client.Del(ctx, sessionID).Err(); err != nil {
 		return fmt.Errorf("redis.Client.Del failed; %w", err)
 	}
-	return fmt.Errorf("not implemented")
+	return nil
 }
